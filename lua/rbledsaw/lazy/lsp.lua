@@ -1,24 +1,43 @@
+local root_files = {
+  '.luarc.json',
+  '.luarc.jsonc',
+  '.luacheckrc',
+  '.stylua.toml',
+  'stylua.toml',
+  'selene.toml',
+  'selene.yml',
+  '.git',
+}
+
 return {
     "neovim/nvim-lspconfig",
     dependencies = {
-        "stevearc/conform.nvim",
+        { "folke/neoconf.nvim", cmd = "Neoconf", opts = {}},
+        { "folke/neodev.nvim", opts = {} },
         "williamboman/mason.nvim",
         "williamboman/mason-lspconfig.nvim",
+        "hrsh7th/nvim-cmp",
         "hrsh7th/cmp-nvim-lsp",
+        "L3MON4D3/LuaSnip",
+        "saadparwaiz1/cmp_luasnip",
         "hrsh7th/cmp-buffer",
         "hrsh7th/cmp-path",
         "hrsh7th/cmp-cmdline",
-        "hrsh7th/nvim-cmp",
-        "L3MON4D3/LuaSnip",
-        "saadparwaiz1/cmp_luasnip",
         "j-hui/fidget.nvim",
+        "stevearc/conform.nvim",
     },
 
     config = function()
+        require("neoconf").setup({
+            root_files = root_files,
+        })
+        require("neodev").setup({})
+        require("fidget").setup({})
         require("conform").setup({
             formatters_by_ft = {
             }
         })
+        require("mason").setup()
         local cmp = require('cmp')
         local cmp_lsp = require("cmp_nvim_lsp")
         local capabilities = vim.tbl_deep_extend(
@@ -27,54 +46,257 @@ return {
             vim.lsp.protocol.make_client_capabilities(),
             cmp_lsp.default_capabilities())
 
-        require("fidget").setup({})
-        require("mason").setup()
-        require("mason-lspconfig").setup({
-            ensure_installed = {
-                "lua_ls",
-                "rust_analyzer",
-                "gopls",
+        local lspconfig = require("lspconfig")
+        local util = require("lspconfig.util")
+
+        lspconfig.zls.setup({
+            capabilities = capabilities,
+            root_dir = util.root_pattern(".git", "build.zig", "build.zig.zon", "build.zon", "build.zig.toml", "build.toml", "zig-cache", "zig-out"),
+            settings = {
+                zls = {
+                    enable_inlay_hints = true,
+                    enable_snippets = true,
+                    warn_style = true,
+                },
             },
-            handlers = {
-                function(server_name) -- default handler (optional)
-                    require("lspconfig")[server_name].setup {
-                        capabilities = capabilities
-                    }
-                end,
+        })
+        vim.g.zig_fmt_parse_errors = 0
+        vim.g.zig_fmt_autosave = 0
 
-                zls = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.zls.setup({
-                        root_dir = lspconfig.util.root_pattern(".git", "build.zig", "zls.json"),
-                        settings = {
-                            zls = {
-                                enable_inlay_hints = true,
-                                enable_snippets = true,
-                                warn_style = true,
-                            },
-                        },
-                    })
-                    vim.g.zig_fmt_parse_errors = 0
-                    vim.g.zig_fmt_autosave = 0
-
-                end,
-                ["lua_ls"] = function()
-                    local lspconfig = require("lspconfig")
-                    lspconfig.lua_ls.setup {
-                        capabilities = capabilities,
-                        settings = {
-                            Lua = {
-                                runtime = { version = "Lua 5.1" },
-                                diagnostics = {
-                                    globals = { "bit", "vim", "it", "describe", "before_each", "after_each" },
-                                }
-                            }
+        lspconfig.lua_ls.setup({
+            capabilities = capabilities,
+            root_dir = util.root_pattern( root_files ),
+            settings = {
+                Lua = {
+                    diagnostics = {
+                        globals = { "vim", "bit", "it", "describe", "before_each", "after_each" },
+                    },
+                    format = {
+                        enable = true,
+                        -- Put format options here
+                        -- NOTE: the value should be STRING!!
+                        defaultConfig = {
+                            indent_style = "space",
+                            indent_size = "4",
                         }
-                    }
-                end,
+                    },
+                    telemetry = {
+                        enable = false,
+                    },
+                }
             }
         })
+        lspconfig.tailwindcss.setup({
+            capabilities = capabilities,
+            filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte" },
+            settings = {
+                tailwindCSS = {
+                    experimental = {
+                        classRegex = {
+                            "tw`([^`]*)",
+                            "tw=\"([^\"]*)",
+                            "tw={\"([^\"}]*)",
+                            "tw\\.\\w+`([^`]*)",
+                            "tw\\(.*?\\)`([^`]*)",
+                        },
+                    },
+                },
+            },
+        })
 
+        lspconfig.rust_analyzer.setup({ capabilities = capabilities })
+        lspconfig.gopls.setup({
+            capabilities = capabilities,
+            settings = {
+                gopls = {
+                    analyses = {
+                        unusedparams = true,
+                        shadow = true,
+                    },
+                    staticcheck = true,
+                },
+            },
+        })
+        lspconfig.bashls.setup({
+            capabilities = capabilities,
+            filetypes = { "sh", "zsh" },
+        })
+        lspconfig.dockerls.setup({
+            capabilities = capabilities,
+            filetypes = { "dockerfile" },
+        })
+        lspconfig.html.setup({
+            capabilities = capabilities,
+            filetypes = { "html", "htmldjango" },
+            settings = {
+                html = {
+                    format = {
+                        wrapLineLength = 120,
+                        unformatted = "a,code,pre,em,strong,span",
+                        contentUnformatted = "a,code,pre,em,strong,span",
+                        indentInnerHtml = true,
+                        preserveNewLines = true,
+                        maxPreserveNewLines = 2,
+                        indentHandlebars = true,
+                        endWithNewline = true,
+                        wrapAttributes = "force",
+                        wrapAttributesIndentSize = 2,
+                        wrapAttributesForceAlignment = true,
+                        wrapAttributesForcePosition = "force",
+                    },
+                },
+            },
+        })
+        lspconfig.jsonls.setup({
+            capabilities = capabilities,
+            filetypes = { "json", "jsonc" },
+            settings = {
+                json = {
+                    format = {
+                        enable = true,
+                        -- Put format options here
+                        -- NOTE: the value should be STRING!!
+                        defaultConfig = {
+                            indent_style = "space",
+                            indent_size = "2",
+                        }
+                    },
+                },
+            },
+        })
+        lspconfig.pyright.setup({
+            capabilities = capabilities,
+            settings = {
+                python = {
+                    analysis = {
+                        typeCheckingMode = "basic",
+                        autoSearchPaths = true,
+                        useLibraryCodeForTypes = true,
+                        diagnosticMode = "workspace",
+                        autoImportCompletions = true,
+                        inlayHints = {
+                            functionReturnTypes = true,
+                            variableTypes = true,
+                            parameterNames = true,
+                            variableTypes = true,
+                            functionParameterTypes = true,
+                            classMemberTypes = true,
+                        },
+                    },
+                },
+            },
+        })
+        lspconfig.ts_ls.setup({
+            capabilities = capabilities,
+            filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "javascript.jsx", "typescript.tsx" },
+            root_dir = util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
+            settings = {
+                typescript = {
+                    format = {
+                        enable = true,
+                        -- Put format options here
+                        -- NOTE: the value should be STRING!!
+                        defaultConfig = {
+                            indent_style = "space",
+                            indent_size = "2",
+                        }
+                    },
+                },
+                javascript = {
+                    format = {
+                        enable = true,
+                        -- Put format options here
+                        -- NOTE: the value should be STRING!!
+                        defaultConfig = {
+                            indent_style = "space",
+                            indent_size = "2",
+                        }
+                    },
+                },
+            },
+        })
+        lspconfig.yamlls.setup({
+            capabilities = capabilities,
+            filetypes = { "yaml", "yml" },
+            settings = {
+                yaml = {
+                    format = {
+                        enable = true,
+                        -- Put format options here
+                        -- NOTE: the value should be STRING!!
+                        defaultConfig = {
+                            indent_style = "space",
+                            indent_size = "2",
+                        }
+                    },
+                    schemas = {
+                        ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = {
+                            "docker-compose.yml",
+                            "docker-compose.yaml",
+                            "compose.yaml",
+                            "compose.yml",
+                        },
+                        ["https://raw.githubusercontent.com/helm/charts/master/stable/values.schema.json"] = {
+                            "Chart.yaml",
+                            "values.yaml",
+                            "values.schema.json",
+                        },
+                        ["https://raw.githubusercontent.com/ansible-community/schemas/main/ansible.schema.json"] = {
+                            "ansible.cfg",
+                            "ansible.json",
+                            "ansible.yaml",
+                            "ansible.yml",
+                        },
+                        ["https://raw.githubusercontent.com/GoogleContainerTools/kpt/master/schemas/kptfile.schema.json"] = {
+                            "Kptfile",
+                        },
+                        ["https://raw.githubusercontent.com/GoogleContainerTools/kustomize/master/examples/overlays/overlays.schema.json"] = {
+                            "kustomization.yaml",
+                            "kustomization.yml",
+                        },
+                        ["https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-config-connector/master/schemas/cck.schema.json"] = {
+                            "config-connector.yaml",
+                            "config-connector.yml",
+                        },
+                    },
+                    validate = true,
+                    hover = true,
+                    completion = true,
+                    schemaStore = {
+                        enable = true,
+                        url = "https://www.schemastore.org/api/json/catalog.json",
+                    },
+                },
+            },
+        })
+        lspconfig.clangd.setup({
+            capabilities = capabilities,
+            filetypes = { "c", "cpp", "objc", "objcpp", "h", "hpp", "cxx", "cc" },
+            root_dir = util.root_pattern("compile_commands.json", "compile_flags.txt", "configure.ac", "configure.in", ".git"),
+            cmd = {
+                "clangd",
+                "--background-index",
+                "--clang-tidy",
+                "--header-insertion=never",
+                "--cross-file-rename",
+                "--completion-style=detailed",
+                "--fallback-style=none",
+                "--pch-storage=memory",
+                "--suggest-missing-includes",
+                "--enable-config",
+                "--header-insertion-decorators",
+                "--all-scopes-completion",
+                "--function-arg-placeholders",
+                "--folding-ranges",
+                "--offset-encoding=utf-16",
+            },
+            init_options = {
+                clangdFileStatus = true,
+                usePlaceholders = true,
+                completeUnimported = true,
+                semanticHighlighting = true,
+            },
+        })
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
         cmp.setup({
@@ -104,7 +326,7 @@ return {
                 focusable = false,
                 style = "minimal",
                 border = "rounded",
-                source = true,
+                source = "always",
                 header = "",
                 prefix = "",
             },

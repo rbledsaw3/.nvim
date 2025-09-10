@@ -1,7 +1,6 @@
 require("rbledsaw.set")
 require("rbledsaw.remap")
 require("rbledsaw.lazy_init")
-vim.cmd.colorscheme("flexoki-moon")
 
 local augroup = vim.api.nvim_create_augroup
 local ThePrimeagenGroup = augroup('ThePrimeagen', {})
@@ -55,3 +54,9 @@ autocmd('LspAttach', {
 
 vim.g.netrw_browse_split = 0
 vim.g.netrw_winsize = 25
+
+vim.filetype.add({
+    extension = {
+        gml = 'javascript'
+    }
+})

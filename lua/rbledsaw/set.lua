@@ -1,4 +1,3 @@
-
 vim.cmd('highlight Normal guibg=black guifg=white')
 
 vim.opt.guicursor = ""
