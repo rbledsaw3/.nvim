@@ -26,6 +26,7 @@ return {
     "tpope/vim-fugitive",
     "theprimeagen/vim-be-good",
     "sbdchd/neoformat",
+    "TheThoughtagen/ignition-nvim",
     {
         "nvim-lualine/lualine.nvim",
         requires = { "nvim-tree/nvim-web-devicons" }

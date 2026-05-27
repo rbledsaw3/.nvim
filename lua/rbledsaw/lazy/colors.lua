@@ -38,7 +38,7 @@ return {
             ColorMyPencils("flexoki", { background = "dark" , black_bg = true})
             require("lualine").setup({
                 options = {
-                    theme = "flexoki",
+                    theme = "gruvbox",
                     },
             })
         end,

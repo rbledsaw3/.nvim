@@ -46,10 +46,9 @@ return {
             vim.lsp.protocol.make_client_capabilities(),
             cmp_lsp.default_capabilities())
 
-        local lspconfig = require("lspconfig")
         local util = require("lspconfig.util")
 
-        lspconfig.zls.setup({
+        vim.lsp.config("zls", {
             capabilities = capabilities,
             root_dir = util.root_pattern(".git", "build.zig", "build.zig.zon", "build.zon", "build.zig.toml", "build.toml", "zig-cache", "zig-out"),
             settings = {
@@ -63,7 +62,7 @@ return {
         vim.g.zig_fmt_parse_errors = 0
         vim.g.zig_fmt_autosave = 0
 
-        lspconfig.lua_ls.setup({
+        vim.lsp.config("lua_ls", {
             capabilities = capabilities,
             root_dir = util.root_pattern( root_files ),
             settings = {
@@ -86,7 +85,7 @@ return {
                 }
             }
         })
-        lspconfig.tailwindcss.setup({
+        vim.lsp.config("tailwindcss", {
             capabilities = capabilities,
             filetypes = { "html", "css", "scss", "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte" },
             settings = {
@@ -104,8 +103,8 @@ return {
             },
         })
 
-        lspconfig.rust_analyzer.setup({ capabilities = capabilities })
-        lspconfig.gopls.setup({
+        vim.lsp.config("rust_analyzer", { capabilities = capabilities })
+        vim.lsp.config("gopls", {
             capabilities = capabilities,
             settings = {
                 gopls = {
@@ -117,15 +116,15 @@ return {
                 },
             },
         })
-        lspconfig.bashls.setup({
+        vim.lsp.config("bashls", {
             capabilities = capabilities,
             filetypes = { "sh", "zsh" },
         })
-        lspconfig.dockerls.setup({
+        vim.lsp.config("dockerls", {
             capabilities = capabilities,
             filetypes = { "dockerfile" },
         })
-        lspconfig.html.setup({
+        vim.lsp.config("html", {
             capabilities = capabilities,
             filetypes = { "html", "htmldjango" },
             settings = {
@@ -147,7 +146,7 @@ return {
                 },
             },
         })
-        lspconfig.jsonls.setup({
+        vim.lsp.config("jsonls", {
             capabilities = capabilities,
             filetypes = { "json", "jsonc" },
             settings = {
@@ -164,7 +163,7 @@ return {
                 },
             },
         })
-        lspconfig.pyright.setup({
+        vim.lsp.config("pyright", {
             capabilities = capabilities,
             settings = {
                 python = {
@@ -178,7 +177,6 @@ return {
                             functionReturnTypes = true,
                             variableTypes = true,
                             parameterNames = true,
-                            variableTypes = true,
                             functionParameterTypes = true,
                             classMemberTypes = true,
                         },
@@ -186,7 +184,7 @@ return {
                 },
             },
         })
-        lspconfig.ts_ls.setup({
+        vim.lsp.config("ts_ls", {
             capabilities = capabilities,
             filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "javascript.jsx", "typescript.tsx" },
             root_dir = util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
@@ -215,7 +213,7 @@ return {
                 },
             },
         })
-        lspconfig.yamlls.setup({
+        vim.lsp.config("yamlls", {
             capabilities = capabilities,
             filetypes = { "yaml", "yml" },
             settings = {
@@ -269,7 +267,7 @@ return {
                 },
             },
         })
-        lspconfig.clangd.setup({
+        vim.lsp.config("clangd", {
             capabilities = capabilities,
             filetypes = { "c", "cpp", "objc", "objcpp", "h", "hpp", "cxx", "cc" },
             root_dir = util.root_pattern("compile_commands.json", "compile_flags.txt", "configure.ac", "configure.in", ".git"),

@@ -20,6 +20,7 @@ return {
                 "gomod",
                 "html",
                 "javascript",
+                "java",
                 "json",
                 "lua",
                 "make",
