@@ -75,7 +75,7 @@ return {
                         -- Put format options here
                         -- NOTE: the value should be STRING!!
                         defaultConfig = {
-                            indent_style = "space",
+                            indent_style = "tab",
                             indent_size = "4",
                         }
                     },
@@ -156,7 +156,7 @@ return {
                         -- Put format options here
                         -- NOTE: the value should be STRING!!
                         defaultConfig = {
-                            indent_style = "space",
+                            indent_style = "tab",
                             indent_size = "2",
                         }
                     },
@@ -195,7 +195,7 @@ return {
                         -- Put format options here
                         -- NOTE: the value should be STRING!!
                         defaultConfig = {
-                            indent_style = "space",
+                            indent_style = "tab",
                             indent_size = "2",
                         }
                     },
@@ -206,7 +206,7 @@ return {
                         -- Put format options here
                         -- NOTE: the value should be STRING!!
                         defaultConfig = {
-                            indent_style = "space",
+                            indent_style = "tab",
                             indent_size = "2",
                         }
                     },
@@ -223,7 +223,7 @@ return {
                         -- Put format options here
                         -- NOTE: the value should be STRING!!
                         defaultConfig = {
-                            indent_style = "space",
+                            indent_style = "tab",
                             indent_size = "2",
                         }
                     },
@@ -310,7 +310,6 @@ return {
                 ["<C-Space>"] = cmp.mapping.complete(),
             }),
             sources = cmp.config.sources({
-                { name = "copilot", group_index = 2 },
                 { name = 'nvim_lsp' },
                 { name = 'luasnip' }, -- For luasnip users.
             }, {
